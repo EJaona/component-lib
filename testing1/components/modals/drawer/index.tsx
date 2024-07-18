@@ -1,5 +1,12 @@
-import React, { HTMLAttributes, Ref, forwardRef } from 'react';
 import classNames from 'classnames';
+import {
+  HTMLAttributes,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
+import React, { Ref, forwardRef } from 'react';
 
 type drawerPositions =
   | 'left-center'
@@ -13,19 +20,12 @@ type drawerPositions =
 type variant = 'top' | 'right' | 'bottom' | 'left';
 type size = 'sm' | 'md' | 'lg';
 
-type baseProps = {
+interface baseProps extends HTMLAttributes<HTMLSpanElement> {
   isOpen: boolean;
   variant: variant;
-  backdrop?: boolean;
-  glass?: boolean;
   positioned?: drawerPositions;
   closeDrawer: () => void;
-};
-
-type DrawerProps = HTMLAttributes<HTMLSpanElement> &
-  baseProps &
-  (backdrop | backdropNone) &
-  (glassType | standardType);
+}
 
 type backdrop = {
   backdrop: true;
@@ -36,13 +36,13 @@ type backdrop = {
 };
 
 type backdropNone = {
-  backdrop?: never;
+  backdrop?: false;
   blur?: never;
   opacity?: never;
 };
 
 type glassType = {
-  glass: true;
+  glass?: true;
   /** the size of blur to apply to the modal if glass prop is true*/
   glassblur?: size;
 };
@@ -52,8 +52,12 @@ type standardType = {
   glassblur?: never;
 };
 
+export type DrawerProps = baseProps &
+  (backdrop | backdropNone) &
+  (glassType | standardType);
+
 export const Drawer = forwardRef(
-  (props: DrawerProps, ref: Ref<HTMLSpanElement>) => {
+  (props: DrawerProps, forwardedRef: Ref<HTMLSpanElement>) => {
     const {
       isOpen,
       children,
@@ -139,10 +143,70 @@ export const Drawer = forwardRef(
         e.target.id === 'drawer' && closeDrawer();
     };
 
+    const [animateOpen, setAnimateOpen] = useState(false);
+
+    // Accessability setup
+    const innerRef = useRef<HTMLSpanElement>(null);
+    useImperativeHandle(forwardedRef, () => innerRef.current!, []);
+
+    const focusableChildren =
+      innerRef.current &&
+      innerRef.current.querySelectorAll(
+        'a, button, input, textarea, select, [href], [tabindex]:not([tabindex="-1"]) '
+      );
+
+    useEffect(() => {
+      let handleKeydown: (event: KeyboardEvent) => void;
+
+      if (isOpen) {
+        setTimeout(() => {
+          setAnimateOpen(true);
+        }, 100);
+
+        if (focusableChildren) {
+          const lastFocusedItem = document.activeElement as HTMLElement;
+          const firstFocusableChild = focusableChildren[0] as HTMLElement;
+          const lastFocusableChild = focusableChildren[
+            focusableChildren.length - 1
+          ] as HTMLElement;
+
+          firstFocusableChild.focus();
+
+          handleKeydown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+              closeDrawer();
+              lastFocusedItem.focus();
+            } else if (event.key === 'Tab') {
+              if (
+                event.shiftKey &&
+                document.activeElement === firstFocusableChild
+              ) {
+                event.preventDefault();
+                lastFocusableChild.focus();
+              } else if (
+                !event.shiftKey &&
+                document.activeElement === lastFocusableChild
+              ) {
+                event.preventDefault();
+                firstFocusableChild.focus();
+              }
+            }
+          };
+
+          if (innerRef.current)
+            innerRef.current.addEventListener('keydown', handleKeydown);
+        }
+      } else {
+        setAnimateOpen(false);
+      }
+
+      return () => removeEventListener('keydown', handleKeydown);
+    }, [isOpen]);
+
     return (
       <span
         id="drawer"
-        ref={ref}
+        ref={innerRef}
         className={classNames([
           'absolute h-full w-full flex overflow-hidden',
           autoPositioning,
@@ -155,9 +219,9 @@ export const Drawer = forwardRef(
       >
         <span
           className={classNames([
-            'transition ease-in-out duration-100 flex justify-center items-center',
-            isOpen ? openAnimation : closeAnimation,
+            'flex justify-center items-center transition ease duration-[500ms]',
             glass && 'bg-white/[.07] shadow-button-up',
+            animateOpen ? openAnimation : closeAnimation,
             glassBackgroundBlur,
             className,
           ])}

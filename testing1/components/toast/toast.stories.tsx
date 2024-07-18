@@ -1,6 +1,6 @@
 import { Toast } from '.';
 import React, { useEffect, useState } from 'react';
-import { Primary } from '../buttons/Button';
+import { Button } from '../buttons/Button';
 
 const meta = {
   title: 'Toast',
@@ -27,14 +27,14 @@ export const Main = () => {
         className="bg-dark-grey text-white rounded-lg"
       />
 
-      <Primary
+      <Button
         onClick={() =>
           setIsMessage('This is an example toast message displayed')
         }
         className="p-3 rounded-lg"
       >
         Open Toast
-      </Primary>
+      </Button>
     </div>
   );
 };
@@ -56,7 +56,7 @@ export const Glass = () => {
         className="text-white rounded-lg"
       />
 
-      <Primary
+      <Button
         glass
         glassblur="md"
         onClick={() =>
@@ -65,7 +65,7 @@ export const Glass = () => {
         className="p-3 rounded-lg text-white"
       >
         Open Toast
-      </Primary>
+      </Button>
     </div>
   );
 };

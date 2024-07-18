@@ -18,7 +18,7 @@ type generalProps = {
 
 type rounded = {
   variant: 'rounded';
-  radius?: size;
+  radius: size;
 };
 
 type notRounded = {
@@ -27,26 +27,26 @@ type notRounded = {
 };
 
 type glassType = {
-  glass: true;
+  glass?: true;
   /** the size of blur to apply to the modal if glass prop is true*/
   glassblur?: size;
 };
 
 type standardType = {
   glass?: false;
+  glassblur?: never;
 };
 
-type inputProps = InputHTMLAttributes<HTMLInputElement> &
+export type inputProps = InputHTMLAttributes<HTMLInputElement> &
+  generalProps &
+  (rounded | notRounded) &
+  (standardType | glassType);
+export type textAreaProps = ComponentPropsWithoutRef<'textarea'> &
   generalProps &
   (rounded | notRounded) &
   (standardType | glassType);
 
-type textAreaProps = ComponentPropsWithoutRef<'textarea'> &
-  generalProps &
-  (rounded | notRounded) &
-  (standardType | glassType);
-
-export const LabeledInput = forwardRef(
+export const Input = forwardRef(
   (props: inputProps, ref: Ref<HTMLInputElement>) => {
     const {
       name,
@@ -120,12 +120,12 @@ export const LabeledInput = forwardRef(
 
             'brightness-[110%]',
 
-            'group-focus-within/input:translate-y-0 group-focus-within/input:-translate-x-2',
+            'group-focus-within/input:translate-y-0',
 
-            'peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:-translate-x-2',
+            'peer-[:not(:placeholder-shown)]:translate-y-0',
 
             required &&
-              `-translate-x-[1rem] group-focus-within/input:-translate-x-[2rem] peer-valid:[&>i]:scale-100
+              `-translate-x-[1rem] peer-valid:translate-x-0 peer-valid:[&>i]:scale-100
                     after:content-['*'] after:ml-0.5 after:text-red-500 peer-valid:after:content-['']`
           )}
         >
@@ -145,7 +145,7 @@ export const LabeledInput = forwardRef(
   }
 );
 
-export const LabeledTextArea = forwardRef(
+export const TextArea = forwardRef(
   (props: textAreaProps, ref: Ref<HTMLTextAreaElement>) => {
     const {
       name,

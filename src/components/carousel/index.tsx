@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { scrollIntoView } from 'seamless-scroll-polyfill';
-import { Primary } from '../buttons/Primary';
+import { Primary } from '../buttons/Button';
 
 type Variant = 'standard' | 'scroll' | 'auto-play';
 

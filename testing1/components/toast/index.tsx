@@ -8,12 +8,13 @@ import React, {
 import classNames from 'classnames';
 import { Icon } from '../dynamicIcon';
 
-type ToastProps = ComponentPropsWithRef<'div'> & {
+type baseProps = ComponentPropsWithRef<'div'> & {
   message: string | null | undefined;
   //**Open duration in seconds */
   duration?: number;
   glass?: boolean;
   close: () => void;
+  className?: string;
 };
 
 type size = 'sm' | 'md' | 'lg';
@@ -21,20 +22,26 @@ type size = 'sm' | 'md' | 'lg';
 type glassType = {
   glass: true;
   /** the size of blur to apply to the modal if glass prop is true*/
-  glassblur: size;
+  glassblur?: size;
 };
 
 type standardType = {
   glass?: false;
+  glassblur?: never;
 };
 
+export type ToastProps = baseProps & (standardType | glassType);
+
 export const Toast = forwardRef(
-  (
-    props: ToastProps & (glassType | standardType),
-    ref: Ref<HTMLDivElement>
-  ) => {
+  (props: ToastProps, ref: Ref<HTMLDivElement>) => {
     const { message, close, duration, glass, className, ...rest } = props;
     const [isOpen, setIsOpen] = useState(false);
+
+    const backdropBlurMap: { [option in size]: string } = {
+      sm: 'backdrop-blur-sm',
+      md: 'backdrop-blur-md',
+      lg: 'backdrop-blur-lg',
+    };
 
     useEffect(() => {
       if (message) {
@@ -56,8 +63,8 @@ export const Toast = forwardRef(
       }, duration ?? 300);
     };
 
-    const glassblur =
-      props.glass && props.glassblur && getglassblurLevel(props.glassblur);
+    const glassBackgroundBlur =
+      glass && backdropBlurMap[props.glassblur ?? 'sm'];
 
     return (
       <div
@@ -66,7 +73,7 @@ export const Toast = forwardRef(
           `absolute top-0 -translate-y-full transition ease duration-300 flex justify-between`,
           isOpen && 'translate-y-1/2',
           glass && 'bg-white/[.07] shadow-button-up',
-          glassblur,
+          glassBackgroundBlur,
           className,
         ])}
         {...rest}
@@ -84,13 +91,3 @@ export const Toast = forwardRef(
     );
   }
 );
-
-const getglassblurLevel = (key: size) => {
-  const backdropBlurMap: { [option in size]: string } = {
-    sm: 'backdrop-blur-sm',
-    md: 'backdrop-blur-md',
-    lg: 'backdrop-blur-lg',
-  };
-
-  return backdropBlurMap[key];
-};

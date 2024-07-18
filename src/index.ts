@@ -6,7 +6,7 @@ single css bundle containing all necessary Tailwind styles.
 import './tailwind.css'
 
 /** Components */
-export { Primary, buttonProps } from './components/buttons/Primary'
+export { Primary, buttonProps } from './components/buttons/Button'
 export { Carousel, carouselProps } from './components/carousel'
 export { Icon, iconsListType } from './components/dynamicIcon'
 export { LabeledInput, LabeledTextArea } from './components/inputs'

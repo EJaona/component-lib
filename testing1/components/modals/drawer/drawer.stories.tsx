@@ -1,6 +1,6 @@
 import { Drawer } from '.';
 import React, { useEffect, useState } from 'react';
-import { Primary } from '../../buttons/Button';
+import { Button } from '../../buttons/Button';
 
 const meta = {
   title: 'Drawer',
@@ -38,12 +38,12 @@ export const Top = () => {
         </div>
       </Drawer>
 
-      <Primary
+      <Button
         className="bg-gray-300 p-3 rounded-xl"
         onClick={() => setIsOpen(true)}
       >
         Open Drawer
-      </Primary>
+      </Button>
     </div>
   );
 };
@@ -70,12 +70,12 @@ export const Right = () => {
         </div>
       </Drawer>
 
-      <Primary
+      <Button
         className="text-white bg-dark-grey text-xl rounded-3xl px-5 py-2"
         onClick={() => setIsOpen(true)}
       >
         Open Drawer
-      </Primary>
+      </Button>
     </div>
   );
 };
@@ -102,12 +102,12 @@ export const Bottom = () => {
         </div>
       </Drawer>
 
-      <Primary
+      <Button
         className="text-white bg-dark-grey text-xl rounded-2xl px-5 py-2"
         onClick={() => setIsOpen(true)}
       >
         Open Drawer
-      </Primary>
+      </Button>
     </div>
   );
 };
@@ -133,12 +133,12 @@ export const Left = () => {
         </div>
       </Drawer>
 
-      <Primary
+      <Button
         className="text-xl px-5 py-2 bg-gray-300 rounded-lg"
         onClick={() => setIsOpen(true)}
       >
         Open Drawer
-      </Primary>
+      </Button>
     </div>
   );
 };
@@ -157,22 +157,24 @@ export const Glass = () => {
         variant="right"
         glass
         glassblur="lg"
+        backdrop
+        opacity="sm"
         closeDrawer={() => setIsOpen(false)}
-        className="w-1/3 h-full text-white text-2xl p-10 flex flex-col bg-dark-grey"
+        className="w-1/3 h-full text-white text-2xl p-10 flex flex-col"
       >
         <div className="text-5xl bg-main-gradient bg-clip-text text-transparent w-full h-full">
           Click anywhere outside of the drawer to close
         </div>
       </Drawer>
 
-      <Primary
+      <Button
         glass
         glassblur="sm"
         className="text-white text-xl rounded-3xl px-5 py-2"
         onClick={() => setIsOpen(true)}
       >
         Open Drawer
-      </Primary>
+      </Button>
     </div>
   );
 };

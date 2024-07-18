@@ -1,4 +1,11 @@
-import React, { HTMLAttributes, Ref, forwardRef } from 'react';
+import React, {
+  ComponentPropsWithRef,
+  Ref,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import { Icon } from '../../dynamicIcon';
 
@@ -9,16 +16,12 @@ type baseProps = {
   variant?: variant;
   backdrop?: boolean;
   glass?: boolean;
-  close: () => void;
+  isOpen?: boolean;
+  defaultOpen?: boolean;
 };
 
-type dialogProps = HTMLAttributes<HTMLDialogElement> &
-  baseProps &
-  (backdrop | backdropNone) &
-  (glassType | standardType);
-
 type backdrop = {
-  backdrop: true;
+  backdrop?: true;
 
   /** the size of background blur to apply behind the modal if backdrop props is true*/
   blur?: size;
@@ -27,38 +30,63 @@ type backdrop = {
 };
 
 type backdropNone = {
-  backdrop?: never;
+  backdrop?: false;
   blur?: never;
+  /** how dark of a background to apply behind the modal if backdrop props is true*/
   opacity?: never;
 };
 
 type glassType = {
-  glass: true;
+  glass?: true;
   /** the size of blur to apply to the modal if glass prop is true*/
-  glassblur: size;
+  glassblur?: size;
 };
 
 type standardType = {
-  glass?: never;
+  glass?: false;
   glassblur?: never;
 };
 
-export const Popup = forwardRef(
+export type dialogProps = ComponentPropsWithRef<'dialog'> &
+  baseProps &
+  (backdrop | backdropNone) &
+  (standardType | glassType);
+// export type dialogProps = HTMLAttributes<HTMLDialogElement> & baseProps & (backdrop | backdropNone) & (standardType | glassType)
+
+export const Dialog = forwardRef(
   (props: dialogProps, ref: Ref<HTMLDialogElement>) => {
     const {
       className,
       children,
       variant = 'down',
       glass,
+      isOpen,
+      defaultOpen,
       backdrop,
-      close,
       ...rest
     } = props;
 
+    const innerRef = useRef<HTMLDialogElement>(null);
+    useImperativeHandle(ref, () => innerRef.current!, []);
+
+    const closeModal = () => {
+      if (innerRef instanceof HTMLDialogElement) innerRef.close();
+    };
+
     const handleClickAwayClose = (e: React.MouseEvent<Element>) => {
       if (e.target instanceof HTMLDialogElement)
-        e.target.nodeName === 'DIALOG' && close();
+        if (e.target.nodeName === 'DIALOG') closeModal();
     };
+
+    useEffect(() => {
+      if (innerRef instanceof HTMLDialogElement) {
+        if (isOpen || defaultOpen) {
+          innerRef.showModal();
+        } else {
+          innerRef.close();
+        }
+      }
+    }, [isOpen, innerRef]);
 
     const backdropBlurMap: { [option in size]: string } = {
       sm: 'backdrop:backdrop-blur-sm',
@@ -111,16 +139,16 @@ export const Popup = forwardRef(
 
     return (
       <dialog
-        ref={ref}
+        ref={innerRef}
         className={classNames([
           'inset-0 block opacity-0 border-[5px] border-transparent',
           'drop-shadow-scaled',
+          openAnimation,
+          closeAnimation,
           shadowEffect,
           glassBackgroundBlur,
           backdropBrightness,
           backdropBlur,
-          openAnimation,
-          closeAnimation,
           className,
         ])}
         onClick={handleClickAwayClose}
@@ -131,7 +159,7 @@ export const Popup = forwardRef(
 
           <Icon
             name="x-circle"
-            onClick={() => close()}
+            onClick={closeModal}
             className={classNames([
               'absolute right-1 top-1 cursor-pointer self-start brightness-75 drop-shadow-scaled hover:brightness-100 px-1 text-3xl',
             ])}
