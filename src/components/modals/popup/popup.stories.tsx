@@ -1,6 +1,6 @@
 import { Popup } from '.';
 import React, { useEffect, useRef } from 'react';
-import { Primary } from '../../buttons/Primary';
+import { Primary } from '../../buttons/Button';
 
 const meta = {
   title: 'Popup',
